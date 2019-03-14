@@ -1,0 +1,3 @@
+[submodule "rust/kafka-benchmark"]
+	path = rust/kafka-benchmark
+	url = https://github.com/slyons/kafka-benchmark.git
