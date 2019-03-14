@@ -1,0 +1,24 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: locust-nymph
+spec:
+  replicas: 10
+  template:
+    metadata:
+      labels:
+        app: locust-nymph
+    spec:
+      containers:
+      - name: locust-nymph
+        image: slyons/locustkaf:latest
+        args: ["--slave", "--master-host=locust-master-internal.default.svc.cluster.local", "-f", "/mnt/azure/locustfile.py"]
+        volumeMounts:
+        - name: azure
+          mountPath: /mnt/azure
+      volumes:
+        - name: azure
+          azureFile:
+            secretName: azure-secret
+            shareName: aksshare
+            readOnly: true

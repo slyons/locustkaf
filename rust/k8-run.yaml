@@ -1,0 +1,24 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: rdkafka-rust
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rdkafka-rust
+    spec:
+      containers:
+      - name: rdkafka-rust
+        image: slyons/rdkafka-benchmark:latest
+        args: ["producer", "/config/base_producer.yaml", "1KB_bursts"]
+        volumeMounts:
+        - name: azure
+          mountPath: /config
+      volumes:
+        - name: azure
+          azureFile:
+            secretName: azure-secret
+            shareName: aksshare
+            readOnly: true

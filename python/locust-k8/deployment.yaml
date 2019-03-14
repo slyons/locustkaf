@@ -1,0 +1,48 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: locust-master
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: locust-master
+    spec:
+      containers:
+      - name: locust-master
+        image: slyons/locustkaf:latest
+        args: ["--master", "--master-bind-host=0.0.0.0", "-f", "/mnt/azure/locustfile.py"]
+        ports:
+        - containerPort: 8089
+          name: locust-web
+        - containerPort: 5557
+          name: locust-mport1
+        - containerPort: 5558
+          name: locust-mport2
+        volumeMounts:
+        - name: azure
+          mountPath: /mnt/azure
+      volumes:
+        - name: azure
+          azureFile:
+            secretName: azure-secret
+            shareName: aksshare
+            readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-master-internal
+spec:
+  ports:
+  - protocol: TCP
+    name: mport1
+    port: 5557
+    targetPort: locust-mport1
+  - protocol: TCP
+    name: mport2
+    port: 5558
+    targetPort: locust-mport2
+  selector:
+    app: locust-master
